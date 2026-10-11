@@ -17,7 +17,7 @@ public class EmployeeSkipListener implements SkipListener<EmployeeCsvRecord, Emp
 
 	@Override
 	public void onSkipInProcess(EmployeeCsvRecord item, Throwable ex) {
-		EmployeeImportError error = EmployeeImportError.builder().rawEmployeeId(item.employeeId())
+		EmployeeImportError error = EmployeeImportError.builder().rawEmployeeId(item.employeeId()).rawName(item.name())
 				.rawEmail(item.email()).rawSalary(item.salary()).errorReason(ex.getMessage()).build();
 
 		employeeImportErrorRepository.save(error);

@@ -15,7 +15,7 @@ public class EmployeeReaderConfig {
 	public FlatFileItemReader<EmployeeCsvRecord> employeeReader() {
 		return new FlatFileItemReaderBuilder<EmployeeCsvRecord>().name("employeeReader")
 				.resource(new ClassPathResource("employees.csv")).linesToSkip(1).delimited().delimiter(",")
-				.names("employeeId", "name", "email", "salary")
+				.names("employeeId", "name", "email", "salary").strict(false)
 				.fieldSetMapper(fieldSet -> new EmployeeCsvRecord(fieldSet.readString("employeeId"),
 						fieldSet.readString("name"), fieldSet.readString("email"), fieldSet.readString("salary")))
 				.build();
