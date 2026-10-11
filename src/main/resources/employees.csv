@@ -1,0 +1,11 @@
+employeeId,name,email,salary
+101,Alice Johnson,alice@example.com,65000
+102,Bob Smith,bob@example.com,72000
+103,Charlie Brown,,58000
+104,David Wilson,david@example.com,-5000
+105,,emma@example.com,60000
+106,Frank Miller,frank@example.com,abc
+107,Grace Thomas,grace@example.com,81000
+108,Henry Davis,henry@example.com,55000
+109,Ivy Martin,ivy@example.com,0
+110,Jack White,jack@example.com,92000
