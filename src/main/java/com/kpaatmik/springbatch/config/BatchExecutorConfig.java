@@ -9,19 +9,16 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 public class BatchExecutorConfig {
 
-    @Bean
-    public AsyncTaskExecutor employeeProcessorTaskExecutor() {
+	@Bean
+	public AsyncTaskExecutor employeeProcessorTaskExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(4);
+		executor.setMaxPoolSize(4);
+		executor.setQueueCapacity(20);
+		executor.setThreadNamePrefix("employee-processor-");
+		executor.setWaitForTasksToCompleteOnShutdown(true);
+		executor.setAwaitTerminationSeconds(30);
 
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(4);
-        executor.setQueueCapacity(20);
-        executor.setThreadNamePrefix("employee-processor-");
-
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAwaitTerminationSeconds(30);
-
-        return executor;
-    }
+		return executor;
+	}
 }

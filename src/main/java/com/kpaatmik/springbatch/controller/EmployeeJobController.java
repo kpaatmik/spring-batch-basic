@@ -31,40 +31,29 @@ public class EmployeeJobController {
 
 	@PostMapping("/import")
 	public ResponseEntity<JobExecutionResponse> importEmployees() throws Exception {
-
 		JobParameters jobParameters = new JobParametersBuilder().addString("importId", UUID.randomUUID().toString())
 				.toJobParameters();
-
 		JobExecution execution = jobOperator.start(employeeImportJob, jobParameters);
-
 		JobExecutionResponse response = new JobExecutionResponse(execution.getId(), execution.getStatus().name(),
 				execution.getJobInstanceId());
-
 		return ResponseEntity.accepted().body(response);
 	}
 
 	@PostMapping("/restart/{executionId}")
 	public ResponseEntity<Map<String, Object>> restart(@PathVariable long executionId) {
-
 		JobExecution failedExecution = jobRepository.getJobExecution(executionId);
-
 		if (failedExecution == null) {
 			return ResponseEntity.notFound().build();
 		}
-
 		if (failedExecution.getStatus() != BatchStatus.FAILED && failedExecution.getStatus() != BatchStatus.STOPPED) {
-
 			return ResponseEntity.badRequest()
 					.body(Map.of("message", "Only FAILED or STOPPED executions can be restarted", "status",
 							failedExecution.getStatus().toString()));
 		}
-
 		try {
 			JobExecution restartedExecution = jobOperator.restart(failedExecution);
-
 			return ResponseEntity.accepted().body(Map.of("previousExecutionId", executionId, "newExecutionId",
 					restartedExecution.getId(), "status", restartedExecution.getStatus().toString()));
-
 		} catch (JobRestartException ex) {
 			return ResponseEntity.status(409)
 					.body(Map.of("message",

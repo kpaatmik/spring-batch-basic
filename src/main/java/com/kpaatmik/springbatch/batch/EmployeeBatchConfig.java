@@ -28,9 +28,8 @@ public class EmployeeBatchConfig {
 			FlatFileItemReader<EmployeeCsvRecord> employeeReader,
 			AsyncItemProcessor<EmployeeCsvRecord, EmployeeProcessingResult> asyncEmployeeProcessor,
 			AsyncItemWriter<EmployeeProcessingResult> asyncEmployeeWriter) {
-
 		return new StepBuilder("employeeImportStep", jobRepository)
-				.<EmployeeCsvRecord, Future<EmployeeProcessingResult>>chunk(5, transactionManager)
+				.<EmployeeCsvRecord, Future<EmployeeProcessingResult>>chunk(5).transactionManager(transactionManager)
 				.reader(employeeReader).processor(asyncEmployeeProcessor).writer(asyncEmployeeWriter).build();
 	}
 
@@ -40,7 +39,7 @@ public class EmployeeBatchConfig {
 		return new StepBuilder("fileValidationStep", jobRepository).tasklet((contribution, chunkContext) -> {
 			csvFileValidator.validate(new ClassPathResource("employees.csv"));
 			return RepeatStatus.FINISHED;
-		}, platformTransactionManager).build();
+		}, platformTransactionManager).allowStartIfComplete(true).build();
 	}
 
 	@Bean

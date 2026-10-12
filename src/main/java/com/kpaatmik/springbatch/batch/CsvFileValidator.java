@@ -30,50 +30,32 @@ public class CsvFileValidator {
 		if (resource == null || !resource.exists()) {
 			throw new InvalidInputFileException("Input CSV file does not exist");
 		}
-
 		if (!resource.isReadable()) {
 			throw new InvalidInputFileException("Input CSV file is not readable");
 		}
-
 		String filename = resource.getFilename();
-
 		if (filename == null || !filename.toLowerCase(Locale.ROOT).endsWith(".csv")) {
 			throw new InvalidInputFileException("Input file must have a .csv extension");
 		}
-
 		try {
 			long fileSize = resource.contentLength();
-
 			if (fileSize == 0) {
 				throw new InvalidInputFileException("Input CSV file is empty");
 			}
-
 			if (fileSize > maxFileSizeBytes) {
 				throw new InvalidInputFileException("Input CSV file exceeds the maximum allowed size");
 			}
-
 			try (Reader reader = new BufferedReader(
 					new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
-
 					CSVParser parser = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true)
 							.setIgnoreEmptyLines(false).get().parse(reader)) {
 
 				// Validate only the CSV header structure.
 				List<String> actualHeaders = parser.getHeaderNames();
-
 				if (!EXPECTED_HEADERS.equals(actualHeaders)) {
 					throw new InvalidInputFileException(
 							"Invalid CSV header. Expected " + EXPECTED_HEADERS + " but received " + actualHeaders);
 				}
-
-				// Validate that every row is structurally valid.
-
-//				for (CSVRecord record : parser) {
-//					if (record.size() != EXPECTED_HEADERS.size()) {
-//						throw new InvalidInputFileException("Invalid column count at CSV record "
-//								+ record.getRecordNumber() + ". Expected 4 columns but found " + record.size());
-//					}
-//				}
 			}
 
 		} catch (InvalidInputFileException ex) {

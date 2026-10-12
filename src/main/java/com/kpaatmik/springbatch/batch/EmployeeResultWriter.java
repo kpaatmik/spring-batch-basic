@@ -13,27 +13,21 @@ import com.kpaatmik.springbatch.model.EmployeeImportError;
 import com.kpaatmik.springbatch.repository.EmployeeImportErrorRepository;
 import com.kpaatmik.springbatch.repository.EmployeeWriterRepository;
 
+import lombok.AllArgsConstructor;
+
 @Component
+@AllArgsConstructor
 public class EmployeeResultWriter implements ItemWriter<EmployeeProcessingResult> {
 
 	private final EmployeeWriterRepository employeeWriterRepository;
 	private final EmployeeImportErrorRepository errorRepository;
-
-	public EmployeeResultWriter(EmployeeWriterRepository employeeWriterRepository,
-			EmployeeImportErrorRepository errorRepository) {
-
-		this.employeeWriterRepository = employeeWriterRepository;
-		this.errorRepository = errorRepository;
-	}
 
 	@Override
 	public void write(Chunk<? extends EmployeeProcessingResult> chunk) {
 
 		List<Employee> validEmployees = new ArrayList<>();
 		List<EmployeeImportError> invalidEmployees = new ArrayList<>();
-
 		for (EmployeeProcessingResult result : chunk.getItems()) {
-
 			if (result.status() == EmployeeProcessingResult.Status.VALID) {
 				validEmployees.add(result.employee());
 			} else {

@@ -19,6 +19,5 @@ public class EmployeeReaderConfig {
 				.fieldSetMapper(fieldSet -> new EmployeeCsvRecord(fieldSet.readString("employeeId"),
 						fieldSet.readString("name"), fieldSet.readString("email"), fieldSet.readString("salary")))
 				.build();
-
 	}
 }
