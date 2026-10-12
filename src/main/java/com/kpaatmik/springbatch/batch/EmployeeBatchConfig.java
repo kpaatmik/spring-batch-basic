@@ -1,5 +1,7 @@
 package com.kpaatmik.springbatch.batch;
 
+import java.util.concurrent.Future;
+
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -7,6 +9,8 @@ import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.file.FlatFileItemReader;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
+import org.springframework.batch.integration.async.AsyncItemProcessor;
+import org.springframework.batch.integration.async.AsyncItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -15,19 +19,19 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.kpaatmik.springbatch.dto.EmployeeCsvRecord;
-import com.kpaatmik.springbatch.exception.InvalidEmployeeException;
-import com.kpaatmik.springbatch.model.Employee;
+import com.kpaatmik.springbatch.dto.EmployeeProcessingResult;
 
 @Configuration
 public class EmployeeBatchConfig {
 	@Bean
-	public Step employeeImportStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager,
-			FlatFileItemReader<EmployeeCsvRecord> empReader, EmployeeProcessor employeeProcessor,
-			EmployeeWriter employeeWriter, EmployeeSkipListener employeeSkipListener) {
-		return new StepBuilder("employeeImportStep", jobRepository).<EmployeeCsvRecord, Employee>chunk(5)
-				.transactionManager(platformTransactionManager).reader(empReader).processor(employeeProcessor)
-				.writer(employeeWriter).faultTolerant().skip(InvalidEmployeeException.class)
-				.skipListener(employeeSkipListener).skipLimit(50).build();
+	public Step employeeImportStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
+			FlatFileItemReader<EmployeeCsvRecord> employeeReader,
+			AsyncItemProcessor<EmployeeCsvRecord, EmployeeProcessingResult> asyncEmployeeProcessor,
+			AsyncItemWriter<EmployeeProcessingResult> asyncEmployeeWriter) {
+
+		return new StepBuilder("employeeImportStep", jobRepository)
+				.<EmployeeCsvRecord, Future<EmployeeProcessingResult>>chunk(5, transactionManager)
+				.reader(employeeReader).processor(asyncEmployeeProcessor).writer(asyncEmployeeWriter).build();
 	}
 
 	@Bean
